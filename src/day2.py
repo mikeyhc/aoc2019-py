@@ -19,13 +19,35 @@ def compute(state):
             break
         ip += 4
 
+def compute_with_args(state, noun, verb):
+    state[1] = noun
+    state[2] = verb
+    compute(state)
+    return state[0]
+
 if __name__ == '__main__':
     state = initial_state_from_file(sys.argv[1])
+    target = int(sys.argv[2])
 
     # part 1
-    s1 = state.copy()
-    s1[1] = 12
-    s1[2] = 2
-    compute(s1)
-    print(f'value at s[0] after computing: {s1[0]}')
+    solution = compute_with_args(state.copy(), 12, 2)
 
+    # part 2
+    # determine the "base" value (noun and verb at 0)
+    base = compute_with_args(state.copy(), 0, 0)
+
+    # determine how much the 1 noun and verb changes the base
+    noun_diff = compute_with_args(state.copy(), 1, 0) - base
+    verb_diff = compute_with_args(state.copy(), 0, 1) - base
+
+    # determine the amount of noun and verb require to make up the difference
+    diff = target - base
+    noun = diff // noun_diff
+    verb = (diff % noun_diff) // verb_diff
+
+    # sanity check
+    assert target == compute_with_args(state.copy(), noun, verb)
+
+    # output answers
+    print(f'value at pos 0 after computing: {solution}')
+    print(f'noun: {noun}; verb: {verb}')
